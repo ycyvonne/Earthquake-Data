@@ -25,7 +25,23 @@ function app() {
 		},
 
 		// our basic location array
-		locations: []
+		data: {locations: []},
+
+		makeWorldMapBounds: function() {
+			var allowedBounds = new google.maps.LatLngBounds(
+				new google.maps.LatLng(85, -180),	// top left corner of map
+				new google.maps.LatLng(-85, 180)	// bottom right corner
+			);
+			var k = 5.0;
+			var n = allowedBounds .getNorthEast().lat() - k;
+			var e = allowedBounds .getNorthEast().lng() - k;
+			var s = allowedBounds .getSouthWest().lat() + k;
+			var w = allowedBounds .getSouthWest().lng() + k;
+			var neNew = new google.maps.LatLng( n, e );
+			var swNew = new google.maps.LatLng( s, w );
+			boundsNew = new google.maps.LatLngBounds( swNew, neNew );
+			return boundsNew;
+		}
 	};
 
 
@@ -45,7 +61,7 @@ function app() {
 		  		earthquake.mag = arrayReturned[i].properties.mag;
 		  		earthquake.place = arrayReturned[i].properties.place;
 
-		  		Model.locations.push(earthquake);
+		  		Model.data.locations.push(earthquake);
 		  	}
 		  	self.init();
 		  });
@@ -55,9 +71,10 @@ function app() {
 		self.init = function() {
 			// put locations in VM to construct listview in DOM using KO
 			self.locationsList = [];
-			Model.locations.forEach(function(element) {
+			Model.data.locations.forEach(function(element) {
 				self.locationsList.push(element);
 			});
+	
 			// put locations length in VM for use in search and show functions
 			self.locationsListLength = self.locationsList.length;
 			// make an array to hold each marker
@@ -67,22 +84,9 @@ function app() {
 			self.initMap();
 		};
 
-		self.setUpMarkerAnimation = function(markerCopy) {
-			// make any previously clicked marker stop bouncing
-			self.markersList.forEach(function(element) {
-				element.setAnimation(null);
-			});
-			// make the clicked marker bounce
-			markerCopy.setAnimation(google.maps.Animation.BOUNCE);
-			// stop bouncing the marker when you close the info window
-			google.maps.event.addListener(self.infoWindow, 'closeclick', function() {
-				markerCopy.setAnimation(null);
-			});
-		};
-
 		self.initTemplate = function() {
  			var template = Handlebars.compile ($('#template').html());  
-			$(document.body).append(template());
+			$(document.body).append(template(Model.data));
 		}
 
 		// initialize the map
@@ -90,19 +94,7 @@ function app() {
 			// create the map
 			let mapCanvas = document.getElementById('map-canvas');
 			self.map = new google.maps.Map(mapCanvas, Model.mapOptions);
-
-			var allowedBounds = new google.maps.LatLngBounds(
-				new google.maps.LatLng(85, -180),	// top left corner of map
-				new google.maps.LatLng(-85, 180)	// bottom right corner
-			);
-			var k = 5.0;
-			var n = allowedBounds .getNorthEast().lat() - k;
-			var e = allowedBounds .getNorthEast().lng() - k;
-			var s = allowedBounds .getSouthWest().lat() + k;
-			var w = allowedBounds .getSouthWest().lng() + k;
-			var neNew = new google.maps.LatLng( n, e );
-			var swNew = new google.maps.LatLng( s, w );
-			boundsNew = new google.maps.LatLngBounds( swNew, neNew );
+			boundsNew = Model.makeWorldMapBounds();
 			self.map .fitBounds(boundsNew);
 			// declare letiables outside of the loop
 			let locations = self.locationsList;
@@ -123,6 +115,19 @@ function app() {
 				// add each marker to an array
 				self.markersList.push(marker);
 			}
+		};
+
+		self.setUpMarkerAnimation = function(markerCopy) {
+			// make any previously clicked marker stop bouncing
+			self.markersList.forEach(function(element) {
+				element.setAnimation(null);
+			});
+			// make the clicked marker bounce
+			markerCopy.setAnimation(google.maps.Animation.BOUNCE);
+			// stop bouncing the marker when you close the info window
+			google.maps.event.addListener(self.infoWindow, 'closeclick', function() {
+				markerCopy.setAnimation(null);
+			});
 		};
 
 		// prevent form from submitting when user presses enter key
