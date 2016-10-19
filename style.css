@@ -1,4 +1,16 @@
+.row {
+	padding: 0 auto;
+}
+
 #map-canvas {
-	width: 500px;
-	height: 500px;
+	width: 461px;
+	height: 461px;
+	display: none;
+	margin: 0 auto;
+}
+
+@media (min-width: 480px) {
+	#map-canvas {
+		display: block;
+	}
 }

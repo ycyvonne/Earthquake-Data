@@ -12,11 +12,22 @@
   <!-- Put your HTML here! -->
 
 	<script id="template" type="text/x-handlebars-template">​
-	 <div id="map-canvas"></div>
+		<div class="container-fluid">
+			<div class="row">
+			  <h1>USGS Significant Earthquakes in the Past 30 Days</h1>
+		  </div>
+			<div class="row">
+				<div class="map-container col-sm-12 col-md-6">
+					<div id="map-canvas"></div>
+				</div>
 
-	 {{#each locations}}
-	 	<p>{{place}}</p>
-	 {{/each}}
+				{{#each locations}}
+			  <div class="col-md-6">
+		 			<h4>{{place}}</h4>
+		 		</div>
+				{{/each}}
+			</div>
+		</div>
 	​</script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 	<script src='script.js'></script>
