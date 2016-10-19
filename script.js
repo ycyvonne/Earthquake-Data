@@ -1,4 +1,4 @@
-function map() {
+function app() {
 
 	if (typeof google === 'undefined') {
 			alert('ERROR: Google maps failed to load');
@@ -25,11 +25,16 @@ function map() {
 		},
 
 		// our basic location array
-		locations: [],
+		locations: []
+	};
 
-		// populate earthquakeArray with data returned from api call
-		getLocationData: function() {
-			console.log('getLocationData called');
+
+	/* --------------------- ViewModel ----------------------*/
+
+	let ViewModel = function() {
+		let self = this;
+		// populate model with data returned from api call
+		self.getLocationData = function() {
 			$.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson', function(data) {
 		  	var arrayReturned = data.features;
 
@@ -42,20 +47,10 @@ function map() {
 
 		  		Model.locations.push(earthquake);
 		  	}
-
-		  	myViewModel.init();
+		  	self.init();
 		  });
-		}
-	};
-
-
-	/* --------------------- ViewModel ----------------------*/
-
-	let ViewModel = function() {
-		console.log('ViewModel called');
-		let self = this;
-
-		Model.getLocationData();
+		};
+		self.getLocationData();
 
 		self.init = function() {
 			// put locations in VM to construct listview in DOM using KO
@@ -67,9 +62,9 @@ function map() {
 			self.locationsListLength = self.locationsList.length;
 			// make an array to hold each marker
 			self.markersList = [];
-			console.log(self.locationsList);
 
-			self.initializeMap();
+			self.initTemplate();
+			self.initMap();
 		};
 
 		self.setUpMarkerAnimation = function(markerCopy) {
@@ -85,9 +80,13 @@ function map() {
 			});
 		};
 
+		self.initTemplate = function() {
+ 			var template = Handlebars.compile ($('#template').html());  
+			$(document.body).append(template());
+		}
+
 		// initialize the map
-		self.initializeMap = function() {
-			console.log('initializemap called');
+		self.initMap = function() {
 			// create the map
 			let mapCanvas = document.getElementById('map-canvas');
 			self.map = new google.maps.Map(mapCanvas, Model.mapOptions);
@@ -96,7 +95,6 @@ function map() {
 				new google.maps.LatLng(85, -180),	// top left corner of map
 				new google.maps.LatLng(-85, 180)	// bottom right corner
 			);
-
 			var k = 5.0;
 			var n = allowedBounds .getNorthEast().lat() - k;
 			var e = allowedBounds .getNorthEast().lng() - k;
@@ -106,7 +104,6 @@ function map() {
 			var swNew = new google.maps.LatLng( s, w );
 			boundsNew = new google.maps.LatLngBounds( swNew, neNew );
 			self.map .fitBounds(boundsNew);
-
 			// declare letiables outside of the loop
 			let locations = self.locationsList;
 			let locationsLength = locations.length;
@@ -139,7 +136,6 @@ function map() {
 			}
 		});
 	};
-
 	// allows us to reference our instance of the ViewModel
 	let myViewModel = new ViewModel();
 }
