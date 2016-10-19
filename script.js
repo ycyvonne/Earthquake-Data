@@ -28,6 +28,11 @@ function app() {
 		data: {locations: []},
 
 		makeWorldMapBounds: function() {
+			/* cited from:
+			 * http://stackoverflow.com/questions/9893680/google-maps-api-v3-show-the-whole-world
+			 * if editing, also see
+			 * http://stackoverflow.com/questions/20498210/display-world-map-with-no-repeats
+			*/
 			var allowedBounds = new google.maps.LatLngBounds(
 				new google.maps.LatLng(85, -180),	// top left corner of map
 				new google.maps.LatLng(-85, 180)	// bottom right corner
@@ -44,7 +49,6 @@ function app() {
 		}
 	};
 
-
 	/* --------------------- ViewModel ----------------------*/
 
 	let ViewModel = function() {
@@ -52,16 +56,16 @@ function app() {
 		// populate model with data returned from api call
 		self.getLocationData = function() {
 			$.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson', function(data) {
-		  	var arrayReturned = data.features;
+			  	var arrayReturned = data.features;
 
-		  	for (var i = 0; i < arrayReturned.length; i++) {
-		  		var earthquake = {coordinates: {}};
-		  		earthquake.coordinates.lng = arrayReturned[i].geometry.coordinates[0];
-		  		earthquake.coordinates.lat = arrayReturned[i].geometry.coordinates[1];
-		  		earthquake.mag = arrayReturned[i].properties.mag;
-		  		earthquake.place = arrayReturned[i].properties.place;
+			  	for (var i = 0; i < arrayReturned.length; i++) {
+			  		var earthquake = {coordinates: {}};
+			  		earthquake.coordinates.lng = arrayReturned[i].geometry.coordinates[0];
+			  		earthquake.coordinates.lat = arrayReturned[i].geometry.coordinates[1];
+			  		earthquake.mag = arrayReturned[i].properties.mag;
+			  		earthquake.place = arrayReturned[i].properties.place;
 
-		  		Model.data.locations.push(earthquake);
+			  		Model.data.locations.push(earthquake);
 		  	}
 		  	self.init();
 		  });
@@ -74,7 +78,7 @@ function app() {
 			Model.data.locations.forEach(function(element) {
 				self.locationsList.push(element);
 			});
-	
+
 			// put locations length in VM for use in search and show functions
 			self.locationsListLength = self.locationsList.length;
 			// make an array to hold each marker
