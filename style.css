@@ -21,9 +21,10 @@
 }
 
 h3{
-	margin-top:5px;
+	margin-top:0px;
 }
 
 .bar:hover{
 	cursor: pointer;
+	opacity: 0.5;
 }

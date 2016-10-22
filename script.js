@@ -126,13 +126,12 @@ function app() {
 		};
 
 		self.setUpVisualization = function(){
-			//console.log(Model.data);
-			let magnitudeArr = [];
+			let data = [];
 			for (earthquake of self.locationsList){
-				magnitudeArr.push(earthquake.mag);
+				let quake = {'magnitude' : earthquake.mag,
+							 'place' : earthquake.place };
+				data.push(quake);
 			}
-
-			console.log(magnitudeArr);
 
 			let canvas = d3.select('.visual-container')
 				.append('svg')
@@ -149,24 +148,27 @@ function app() {
 			let color = d3.scaleLinear()
 				.domain([0, 8])
 				.range(['blue', 'red']);
-			//console.log(self.locationsListLength);
 
-			let barsSelection = canvas.selectAll('rect')
-				.data(magnitudeArr)
+			let nodes = canvas.selectAll('rect')
+				.data(data)
 				.enter().append('g');
 
-			barsSelection.append('rect')
+			nodes.append('rect')
 						.classed('bar', true)
 						.attr('id', (d, i) => {return "bar" + i;})
 						.attr('width', 0)
-						.attr('height', (300.0 / self.locationsListLength))
-						.attr('fill', d => { return color(d) })
-						.attr('y', (d, i) => { return i * 12 })
+						.attr('height', (370.0 / self.locationsListLength))
+						.attr('fill', d => { return color(d.magnitude) })
+						.attr('y', (d, i) => { return i * 420.0 / self.locationsListLength })
 					.transition()
 						.duration(1500)
-						.attr('width', d => { return widthScale(d); });
+						.attr('width', d => { return widthScale(d.magnitude); });
 
-			barsSelection.append('p').html(d => {return d});
+			canvas.selectAll('rect').on('click', (d, i) => {
+				d3.selectAll('rect').style('opacity', '0.5');
+				d3.select('#bar'+i).style('opacity', 1);
+				d3.select('#mag-title').html('['+d.magnitude+'] '+d.place);
+			});
 
 		}
 
@@ -176,11 +178,12 @@ function app() {
 				element.setAnimation(null);
 			});
 			// make the clicked marker bounce
+			
 			markerCopy.setAnimation(google.maps.Animation.BOUNCE);
 			// stop bouncing the marker when you close the info window
-			google.maps.event.addListener(self.infoWindow, 'closeclick', function() {
+			/*google.maps.event.addListener(self.infoWindow, 'closeclick', function() {
 				markerCopy.setAnimation(null);
-			});
+			});*/
 		};
 
 		// prevent form from submitting when user presses enter key
