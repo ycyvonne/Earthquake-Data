@@ -2,6 +2,11 @@
 	padding: 0 auto;
 }
 
+.row:first-child{
+	margin-bottom: 20px;
+	text-align: center;
+}
+
 #map-canvas {
 	width: 461px;
 	height: 461px;
@@ -13,4 +18,12 @@
 	#map-canvas {
 		display: block;
 	}
+}
+
+h3{
+	margin-top:5px;
+}
+
+.bar:hover{
+	cursor: pointer;
 }

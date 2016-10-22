@@ -33,17 +33,17 @@ function app() {
 			 * if editing, also see
 			 * http://stackoverflow.com/questions/20498210/display-world-map-with-no-repeats
 			*/
-			var allowedBounds = new google.maps.LatLngBounds(
+			let allowedBounds = new google.maps.LatLngBounds(
 				new google.maps.LatLng(85, -180),	// top left corner of map
 				new google.maps.LatLng(-85, 180)	// bottom right corner
 			);
-			var k = 5.0;
-			var n = allowedBounds .getNorthEast().lat() - k;
-			var e = allowedBounds .getNorthEast().lng() - k;
-			var s = allowedBounds .getSouthWest().lat() + k;
-			var w = allowedBounds .getSouthWest().lng() + k;
-			var neNew = new google.maps.LatLng( n, e );
-			var swNew = new google.maps.LatLng( s, w );
+			let k = 5.0;
+			let n = allowedBounds .getNorthEast().lat() - k;
+			let e = allowedBounds .getNorthEast().lng() - k;
+			let s = allowedBounds .getSouthWest().lat() + k;
+			let w = allowedBounds .getSouthWest().lng() + k;
+			let neNew = new google.maps.LatLng( n, e );
+			let swNew = new google.maps.LatLng( s, w );
 			boundsNew = new google.maps.LatLngBounds( swNew, neNew );
 			return boundsNew;
 		}
@@ -55,11 +55,13 @@ function app() {
 		let self = this;
 		// populate model with data returned from api call
 		self.getLocationData = function() {
-			$.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson', function(data) {
-			  	var arrayReturned = data.features;
+			$.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson', function(data) {
+			  	let arrayReturned = data.features;
 
-			  	for (var i = 0; i < arrayReturned.length; i++) {
-			  		var earthquake = {coordinates: {}};
+			  	//console.log(arrayReturned);
+
+			  	for (let i = 0; i < arrayReturned.length; i++) {
+			  		let earthquake = {coordinates: {}};
 			  		earthquake.coordinates.lng = arrayReturned[i].geometry.coordinates[0];
 			  		earthquake.coordinates.lat = arrayReturned[i].geometry.coordinates[1];
 			  		earthquake.mag = arrayReturned[i].properties.mag;
@@ -86,11 +88,13 @@ function app() {
 
 			self.initTemplate();
 			self.initMap();
+			self.setUpVisualization();
 		};
 
 		self.initTemplate = function() {
- 			var template = Handlebars.compile ($('#template').html());  
+ 			let template = Handlebars.compile ($('#template').html());  
 			$(document.body).append(template(Model.data));
+			//window.allData = Model.data.locations;
 		}
 
 		// initialize the map
@@ -99,7 +103,7 @@ function app() {
 			let mapCanvas = document.getElementById('map-canvas');
 			self.map = new google.maps.Map(mapCanvas, Model.mapOptions);
 			boundsNew = Model.makeWorldMapBounds();
-			self.map .fitBounds(boundsNew);
+			self.map.fitBounds(boundsNew);
 			// declare letiables outside of the loop
 			let locations = self.locationsList;
 			let locationsLength = locations.length;
@@ -109,7 +113,7 @@ function app() {
 				maxWidth: 300,
 			});
 			// for loop makes markers with info windows
-			for (i = 0; i < locationsLength; i++) {
+			for (let i = 0; i < locationsLength; i++) {
 				// make markers
 				marker = new google.maps.Marker({
 					position: locations[i].coordinates,
@@ -120,6 +124,51 @@ function app() {
 				self.markersList.push(marker);
 			}
 		};
+
+		self.setUpVisualization = function(){
+			//console.log(Model.data);
+			let magnitudeArr = [];
+			for (earthquake of self.locationsList){
+				magnitudeArr.push(earthquake.mag);
+			}
+
+			console.log(magnitudeArr);
+
+			let canvas = d3.select('.visual-container')
+				.append('svg')
+				.attr('width', 500)
+				.attr('height', 500);
+
+			let width = 800;
+			let height = 500;
+
+			let widthScale = d3.scaleLinear()
+				.domain([0, 8])
+				.range([0, width]);
+
+			let color = d3.scaleLinear()
+				.domain([0, 8])
+				.range(['blue', 'red']);
+			//console.log(self.locationsListLength);
+
+			let barsSelection = canvas.selectAll('rect')
+				.data(magnitudeArr)
+				.enter().append('g');
+
+			barsSelection.append('rect')
+						.classed('bar', true)
+						.attr('id', (d, i) => {return "bar" + i;})
+						.attr('width', 0)
+						.attr('height', (300.0 / self.locationsListLength))
+						.attr('fill', d => { return color(d) })
+						.attr('y', (d, i) => { return i * 12 })
+					.transition()
+						.duration(1500)
+						.attr('width', d => { return widthScale(d); });
+
+			barsSelection.append('p').html(d => {return d});
+
+		}
 
 		self.setUpMarkerAnimation = function(markerCopy) {
 			// make any previously clicked marker stop bouncing
