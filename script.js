@@ -138,7 +138,7 @@ function app() {
 				.attr('width', 500)
 				.attr('height', 500);
 
-			let width = 800;
+			let width = 600;
 			let height = 500;
 
 			let widthScale = d3.scaleLinear()
@@ -178,7 +178,7 @@ function app() {
 				element.setAnimation(null);
 			});
 			// make the clicked marker bounce
-			
+
 			markerCopy.setAnimation(google.maps.Animation.BOUNCE);
 			// stop bouncing the marker when you close the info window
 			/*google.maps.event.addListener(self.infoWindow, 'closeclick', function() {

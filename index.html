@@ -13,21 +13,20 @@
   <!-- Put your HTML here! -->
 	<script id="template" type="text/x-handlebars-template">​
 		<div class="container-fluid">
-			<div class="row">
-			  <h1>USGS MG 2.5+ Earthquakes in the Past Day</h1>
-		  </div>
-			<div class="row">
-				<div class="map-container col-sm-12 col-md-6">
-					<div id="map-canvas"></div>
-				</div>
-
-				<div class="visual-container">
+			<div class="row text-center">
+			  <h1>USGS MG 2.5+ Earthquakes<br> in the Past Day</h1>
+		    </div>
+			<div class="row text-center">
+				<div class="visual-container col-sm-12 col-md-6">
 				<h3 id="mag-title">[MAGNITUDE] Location</h3>
 					<!--/*{{#each locations}}
 				  <div class="col-md-6">
 			 			<h4>{{place}}</h4>
 			 		</div>
 					{{/each}}*/-->
+				</div>
+				<div class="map-container col-sm-12 col-md-6">
+					<div id="map-canvas"></div>
 				</div>
 			</div>
 		</div>
@@ -47,6 +46,6 @@
 		}
 		window.onload = loadScript;
 	</script>
-	
+
 </body>
 </html>
