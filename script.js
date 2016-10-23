@@ -122,7 +122,12 @@ function app() {
 				marker.setMap(self.map);
 				// add each marker to an array
 				self.markersList.push(marker);
+				self.makeMarkersClickable(i, marker);
 			}
+		};
+
+		self.makeGraphClickable = function(element) {
+			console.log('makeGraphClickable clicked');
 		};
 
 		self.setUpVisualization = function(){
@@ -170,20 +175,24 @@ function app() {
 				d3.select('#mag-title').html('['+d.magnitude+'] '+d.place);
 			});
 
-		}
+		};
 
-		self.setUpMarkerAnimation = function(markerCopy) {
+		// when a marker is clicked, open an info window and animate the marker
+		self.makeMarkersClickable = function(i, markerCopy) {
+			// the click event handler for each marker
+			google.maps.event.addListener(markerCopy, 'click', function() {
+				// model constructs info window content for each location
+				self.setUpMarkerAnimation(i, markerCopy);
+			});
+		};
+
+		self.setUpMarkerAnimation = function(i, markerCopy) {
 			// make any previously clicked marker stop bouncing
 			self.markersList.forEach(function(element) {
 				element.setAnimation(null);
 			});
 			// make the clicked marker bounce
-
 			markerCopy.setAnimation(google.maps.Animation.BOUNCE);
-			// stop bouncing the marker when you close the info window
-			/*google.maps.event.addListener(self.infoWindow, 'closeclick', function() {
-				markerCopy.setAnimation(null);
-			});*/
 		};
 
 		// prevent form from submitting when user presses enter key
